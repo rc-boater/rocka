@@ -1,13 +1,19 @@
 from django.contrib.auth.models import User
+from django.conf import settings
 from rest_framework import serializers
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=12, style={"input_type": "password"})
+    password = serializers.CharField(write_only=True, min_length=6, style={"input_type": "password"})
 
     class Meta:
         model = User
         fields = ("username", "email", "password", "first_name", "last_name")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not settings.REQUIRE_ACCOUNT_EMAIL:
+            self.fields.pop("email", None)
 
     def validate_email(self, value):
         if User.objects.filter(email__iexact=value).exists():
