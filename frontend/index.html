@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Climb Tracker</title>
+  <style>
+    :root { color-scheme: light; --ink: #17202a; --muted: #667085; --line: #e5e7eb; --accent: #d97706; --soft: #fff7ed; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; color: var(--ink); background: #f8fafc; }
+    header { background: #17202a; color: white; padding: 1rem max(1rem, calc((100% - 1000px) / 2)); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    header h1 { margin: 0; font-size: 1.25rem; }
+    main { width: min(100% - 2rem, 1000px); margin: 2rem auto; }
+    .card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px #17202a0b; }
+    .auth { max-width: 440px; margin: 4rem auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+    .two-col { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 1rem; align-items: start; }
+    label { display: block; margin: .75rem 0 .25rem; font-weight: 600; font-size: .9rem; }
+    input, select, textarea, button { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: .65rem .7rem; font: inherit; }
+    textarea { min-height: 88px; resize: vertical; }
+    button { cursor: pointer; border: 0; background: var(--accent); color: white; font-weight: 700; margin-top: 1rem; }
+    button.secondary { background: transparent; color: white; border: 1px solid #ffffff66; width: auto; margin: 0; padding: .45rem .75rem; }
+    button.link { background: none; color: var(--accent); padding: 0; width: auto; margin: .75rem 0 0; }
+    .muted, small { color: var(--muted); }
+    .message { min-height: 1.5rem; margin-top: .75rem; color: #b42318; }
+    .success { color: #067647; }
+    .climb { border-top: 1px solid var(--line); padding: 1rem 0; }
+    .climb:first-child { border-top: 0; padding-top: 0; }
+    .climb h3 { margin: 0; font-size: 1.05rem; }
+    .badge { display: inline-block; background: var(--soft); color: #9a3412; border-radius: 999px; padding: .15rem .5rem; font-size: .8rem; }
+    .stat { font-size: 2rem; font-weight: 750; margin: .2rem 0; }
+    [hidden] { display: none !important; }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧗 Climb Tracker</h1>
+    <button id="logout" class="secondary" hidden>Log out</button>
+  </header>
+
+  <main>
+    <section id="auth-view" class="card auth">
+      <h2 id="auth-title">Sign in</h2>
+      <p class="muted">Track the climbs you want to remember.</p>
+      <form id="auth-form">
+        <label for="username">Username</label><input id="username" autocomplete="username" required>
+        <div id="email-wrap" hidden><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
+        <label for="password">Password</label><input id="password" type="password" minlength="12" required autocomplete="current-password">
+        <button id="auth-submit">Sign in</button>
+      </form>
+      <button id="toggle-auth" class="link" type="button">Need an account? Register</button>
+      <p id="auth-message" class="message" role="alert"></p>
+    </section>
+
+    <section id="app-view" hidden>
+      <div class="grid" style="margin-bottom: 1rem">
+        <div class="card"><small>Total climbs</small><div id="total-count" class="stat">0</div></div>
+        <div class="card"><small>Successful climbs</small><div id="sent-count" class="stat">0</div></div>
+        <div class="card"><small>Feature status</small><div id="feature-status" class="stat" style="font-size:1.2rem">Loading…</div></div>
+      </div>
+      <div class="two-col">
+        <form id="climb-form" class="card">
+          <h2>Log a climb</h2>
+          <label for="climbed-on">Date</label><input id="climbed-on" type="date" required>
+          <label for="name">Name</label><input id="name" required maxlength="200" placeholder="Midnight Lightning">
+          <label for="location">Location</label><input id="location" maxlength="250" placeholder="Camp 4">
+          <label for="discipline">Discipline</label>
+          <select id="discipline"><option value="boulder">Bouldering</option><option value="sport">Sport</option><option value="trad">Trad</option><option value="top_rope">Top rope</option><option value="ice">Ice</option><option value="alpine">Alpine</option></select>
+          <label for="grade-system">Grade system</label>
+          <select id="grade-system"><option>V</option><option>YDS</option><option>French</option><option>UIAA</option><option>Font</option></select>
+          <label for="grade">Grade</label><input id="grade" required placeholder="V4">
+          <label for="attempts">Attempts</label><input id="attempts" type="number" min="1" value="1" required>
+          <label><input id="sent" type="checkbox" checked style="width:auto"> Sent</label>
+          <label for="notes">Notes</label><textarea id="notes" maxlength="4000"></textarea>
+          <button>Save climb</button><p id="form-message" class="message" role="alert"></p>
+        </form>
+        <div class="card"><h2>Recent climbs</h2><div id="climb-list"><p class="muted">Loading…</p></div></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const api = '/api';
+    let access = localStorage.getItem('climb_access');
+    let registering = false;
+    const $ = id => document.getElementById(id);
+    const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    async function request(path, options = {}) {
+      const headers = { ...(options.body instanceof FormData ? {} : {'Content-Type': 'application/json'}), ...(options.headers || {}) };
+      if (access) headers.Authorization = `Bearer ${access}`;
+      const response = await fetch(api + path, { ...options, headers });
+      if (response.status === 401 && access) { localStorage.removeItem('climb_access'); access = null; showAuth(); }
+      const body = response.status === 204 ? null : await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.detail || Object.values(body).flat().join(' ') || 'Request failed');
+      return body;
+    }
+    function showAuth() { $('auth-view').hidden = false; $('app-view').hidden = true; $('logout').hidden = true; }
+    function showApp() { $('auth-view').hidden = true; $('app-view').hidden = false; $('logout').hidden = false; loadDashboard(); }
+    $('toggle-auth').onclick = () => { registering = !registering; $('auth-title').textContent = registering ? 'Create account' : 'Sign in'; $('auth-submit').textContent = registering ? 'Register' : 'Sign in'; $('email-wrap').hidden = !registering; $('email').required = registering; $('toggle-auth').textContent = registering ? 'Already have an account? Sign in' : 'Need an account? Register'; $('auth-message').textContent = ''; };
+    $('auth-form').onsubmit = async event => { event.preventDefault(); $('auth-message').textContent = ''; try { if (registering) { await request('/auth/register/', {method:'POST', body: JSON.stringify({username:$('username').value, email:$('email').value, password:$('password').value})}); registering = false; $('toggle-auth').click(); $('auth-message').textContent = 'Account created. You can now sign in.'; $('auth-message').className = 'message success'; } else { const data = await request('/auth/login/', {method:'POST', body: JSON.stringify({username:$('username').value, password:$('password').value})}); access = data.access; localStorage.setItem('climb_access', access); showApp(); } } catch (error) { $('auth-message').textContent = error.message; } };
+    $('logout').onclick = () => { localStorage.removeItem('climb_access'); access = null; showAuth(); };
+    $('climb-form').onsubmit = async event => { event.preventDefault(); $('form-message').textContent = ''; try { await request('/climbs/', {method:'POST', body: JSON.stringify({climbed_on:$('climbed-on').value, name:$('name').value, location:$('location').value, discipline:$('discipline').value, grade_system:$('grade-system').value, grade:$('grade').value, attempts:Number($('attempts').value), sent:$('sent').checked, notes:$('notes').value})}); event.target.reset(); $('climbed-on').value = new Date().toISOString().slice(0,10); $('sent').checked = true; $('form-message').textContent = 'Climb saved.'; $('form-message').className = 'message success'; loadDashboard(); } catch (error) { $('form-message').textContent = error.message; } };
+    async function loadDashboard() { try { const [climbs, features] = await Promise.all([request('/climbs/'), request('/climbs/features/')]); $('total-count').textContent = climbs.length; $('sent-count').textContent = climbs.filter(c => c.sent).length; $('feature-status').textContent = features.photo_uploads_enabled ? 'Photos enabled' : 'Photos disabled'; $('climb-list').innerHTML = climbs.length ? climbs.map(c => `<article class="climb"><h3>${escapeHtml(c.name)} <span class="badge">${escapeHtml(c.grade_system)} ${escapeHtml(c.grade)}</span></h3><div class="muted">${escapeHtml(c.climbed_on)} · ${escapeHtml(c.location || 'Location not set')} · ${escapeHtml(c.discipline)}</div><div>${c.sent ? '✓ Sent' : 'Project'} · ${c.attempts} attempt${c.attempts === 1 ? '' : 's'}</div>${c.notes ? `<p>${escapeHtml(c.notes)}</p>` : ''}</article>`).join('') : '<p class="muted">No climbs logged yet.</p>'; } catch (error) { $('climb-list').innerHTML = `<p class="message">${escapeHtml(error.message)}</p>`; } }
+    $('climbed-on').value = new Date().toISOString().slice(0,10);
+    if (access) showApp(); else showAuth();
+  </script>
+</body>
+</html>

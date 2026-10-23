@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - media_data:/var/www/climb-tracker/media
+    command: >
+      sh -c "python manage.py migrate && python manage.py collectstatic --noinput &&
+      gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+
+volumes:
+  media_data:
+
