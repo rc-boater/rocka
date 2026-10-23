@@ -18,7 +18,7 @@
     header h1 { font-size:1.25rem; letter-spacing:.02em; margin:0; }
     main { width:min(100% - 2rem, 1100px); margin:1.25rem auto 3rem; }
     .auth { max-width:430px; margin:12vh auto 0; }
-    .card { background:var(--white); border:1px solid var(--line); border-radius:3px; padding:1.1rem; box-shadow:0 3px 12px #1e2a3512; }
+    .card { background:var(--white); border:1px solid var(--line); border-radius:3px; padding:1.1rem; }
     .muted, small { color:var(--muted); }
     h2 { font-size:1.25rem; margin:.1rem 0 .75rem; }
     h3 { margin:.1rem 0 .2rem; }
@@ -31,7 +31,7 @@
     button.ghost { background:transparent; color:var(--blue-dark); }
     button.link { border:0; background:none; color:var(--blue); padding:.2rem 0; margin-top:.7rem; }
     .message { min-height:1.35rem; color:var(--danger); margin:.65rem 0 0; }
-    .stats { display:grid; grid-template-columns:repeat(3, 1fr); gap:.7rem; margin-bottom:1rem; }
+    .stats { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:.7rem; margin-bottom:1rem; }
     .stat-value { font-size:1.65rem; font-weight:700; margin:.15rem 0 0; }
     .toolbar { display:flex; align-items:center; justify-content:space-between; gap:.7rem; flex-wrap:wrap; margin-bottom:.7rem; }
     .toolbar h2 { margin:0; }
@@ -52,7 +52,7 @@
     .climb-bar.project { border-left-color:#8898a2; }
     .more { display:block; margin-top:.2rem; color:var(--blue-dark); font-size:.78rem; font-weight:700; }
     .modal-backdrop { position:fixed; inset:0; z-index:10; display:grid; place-items:center; padding:1rem; background:#1e2a358c; }
-    .modal { width:min(100%, 620px); max-height:calc(100vh - 2rem); overflow:auto; background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:1rem; box-shadow:0 12px 40px #1e2a3555; }
+    .modal { width:min(100%, 620px); max-height:calc(100vh - 2rem); overflow:auto; background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:1rem; }
     .modal.large { width:min(100%, 900px); }
     .modal-head { display:flex; justify-content:space-between; gap:1rem; align-items:center; margin-bottom:.5rem; }
     .close { background:none; color:var(--blue-dark); border:0; font-size:1.5rem; line-height:1; padding:.2rem; }
@@ -65,7 +65,7 @@
     [hidden] { display:none !important; }
     @media (max-width:700px) {
       main { width:min(100% - 1rem, 1100px); margin-top:.75rem; }
-      .stats { gap:.4rem; }
+      .stats { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:.4rem; }
       .stat-value { font-size:1.35rem; }
       .card { padding:.8rem; }
       .day { min-height:82px; padding:.22rem; }
@@ -102,9 +102,10 @@
       <div class="stats">
         <div class="card"><small>Successful climbs</small><div id="sent-count" class="stat-value">0</div></div>
         <div class="card"><small>Highest grade</small><div id="highest-grade" class="stat-value">—</div></div>
-        <div class="card"><small>Average · past month</small><div id="average-grade" class="stat-value">—</div></div>
+        <div class="card"><small>Average V · past month</small><div id="average-v" class="stat-value">—</div></div>
+        <div class="card"><small>Average YDS · past month</small><div id="average-yds" class="stat-value">—</div></div>
       </div>
-      <button id="open-attempt" class="primary-action">Log an attempt</button>
+      <button id="open-attempt" class="primary-action">Log a climb</button>
       <section class="card calendar">
         <div class="toolbar"><h2 id="calendar-title"></h2><div><button id="previous-period" class="ghost" aria-label="Previous period">←</button> <button id="today-period" class="ghost">Today</button> <button id="next-period" class="ghost" aria-label="Next period">→</button></div><div class="view-toggle"><button id="month-view" type="button">Month</button><button id="week-view" class="active" type="button">Week</button></div></div>
         <div class="calendar-head"><div class="weekday">Sun</div><div class="weekday">Mon</div><div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div></div>
@@ -113,12 +114,12 @@
     </section>
   </main>
 
-  <div id="attempt-modal" class="modal-backdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="attempt-title"><div class="modal-head"><h2 id="attempt-title">Log an attempt</h2><button class="close" data-close="attempt-modal" aria-label="Close">×</button></div><form id="attempt-form">
+  <div id="attempt-modal" class="modal-backdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="attempt-title"><div class="modal-head"><h2 id="attempt-title">Log a climb</h2><button class="close" data-close="attempt-modal" aria-label="Close">×</button></div><form id="attempt-form">
     <label for="climbed-on">Date</label><input id="climbed-on" type="date" required>
     <label for="name">Name</label><input id="name" required maxlength="200" placeholder="Route or problem name">
     <label for="location">Location</label><input id="location" maxlength="250" placeholder="Gym or crag">
-    <label for="discipline">Discipline</label><select id="discipline"><option value="boulder">Bouldering</option><option value="sport">Sport</option><option value="trad">Trad</option><option value="top_rope">Top rope</option><option value="ice">Ice</option><option value="alpine">Alpine</option></select>
-    <label for="grade-system">Grade system</label><select id="grade-system"><option>V</option><option>YDS</option><option>French</option><option>UIAA</option><option>Font</option></select>
+    <label for="discipline">Type</label><select id="discipline"><option value="boulder">Bouldering</option><option value="sport">Sport</option><option value="top_rope">Top rope</option><option value="trad" disabled>Trad (unavailable)</option><option value="ice" disabled>Ice (unavailable)</option><option value="alpine" disabled>Alpine (unavailable)</option></select>
+    <label for="grade-system">Grade system</label><select id="grade-system"><option>V</option><option>YDS</option><option disabled>French (unavailable)</option><option disabled>UIAA (unavailable)</option><option disabled>Font (unavailable)</option></select>
     <label for="grade-number">Grade</label><div class="grade-field"><span id="grade-prefix" class="grade-prefix" hidden></span><input id="grade-number" type="text" inputmode="decimal" required placeholder="4" autocomplete="off"></div>
     <label for="attempts">Attempts</label><input id="attempts" type="number" min="1" value="1" required>
     <label><input id="sent" type="checkbox" checked style="width:auto"> Sent</label>
@@ -142,10 +143,12 @@
     function setGradeValue(system,value){$('grade-system').value=system;const format=gradeFormats[system]||{prefix:'',placeholder:'grade'};const text=String(value??'');$('grade-number').value=format.prefix&&text.toUpperCase().startsWith(format.prefix)?text.slice(format.prefix.length):text;updateGradeFormat();}
     $('grade-system').onchange=updateGradeFormat;
     function gradeScore(c){const raw=String(c.grade).toUpperCase();const n=parseFloat(raw.replace(/[^0-9.]/g,''));if(c.grade_system==='V')return 100+(Number.isFinite(n)?n:0);if(c.grade_system==='Font')return 80+(Number.isFinite(n)?n:0);if(c.grade_system==='French')return 60+(Number.isFinite(n)?n:0);if(c.grade_system==='YDS')return 40+(Number.isFinite(n)?n:0);if(c.grade_system==='UIAA')return 20+(Number.isFinite(n)?n:0);return 0;}
-    function updateStats(){const sent=climbs.filter(c=>c.sent);$('sent-count').textContent=sent.length;const highest=sent.slice().sort((a,b)=>gradeScore(b)-gradeScore(a))[0];$('highest-grade').textContent=highest?`${highest.grade_system} ${highest.grade}`:'—';const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);const recent=climbs.filter(c=>new Date(`${c.climbed_on}T00:00:00`)>=cutoff);const systems={};recent.forEach(c=>{const n=parseFloat(String(c.grade).replace(/[^0-9.]/g,''));if(Number.isFinite(n))(systems[c.grade_system]??=[]).push(n);});const averageSystem=Object.keys(systems).sort((a,b)=>systems[b].length-systems[a].length)[0];const values=averageSystem?systems[averageSystem]:[];$('average-grade').textContent=values.length?`${averageSystem} ${(values.reduce((a,n)=>a+n,0)/values.length).toFixed(1)}`:'—';}
+    function gradeNumber(c){const raw=String(c.grade);return c.grade_system==='YDS'&&raw.startsWith('5.')?parseFloat(raw.slice(2)):parseFloat(raw.replace(/[^0-9.]/g,''));}
+    function formatAverage(system,values){if(!values.length)return '—';const average=values.reduce((a,n)=>a+n,0)/values.length;return system==='V'?`V${average.toFixed(1)}`:system==='YDS'?`5.${average.toFixed(1).padStart(2,'0')}`:average.toFixed(1);}
+    function updateStats(){const sent=climbs.filter(c=>c.sent);$('sent-count').textContent=sent.length;const highest=sent.slice().sort((a,b)=>gradeScore(b)-gradeScore(a))[0];$('highest-grade').textContent=highest?highest.grade:'—';const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);const recent=climbs.filter(c=>new Date(`${c.climbed_on}T00:00:00`)>=cutoff);const v=recent.filter(c=>c.grade_system==='V').map(gradeNumber).filter(Number.isFinite);const yds=recent.filter(c=>c.grade_system==='YDS').map(gradeNumber).filter(Number.isFinite);$('average-v').textContent=formatAverage('V',v);$('average-yds').textContent=formatAverage('YDS',yds);}
     function daysForView(){if(view==='week'){const d=new Date(cursor);d.setDate(d.getDate()-d.getDay());return Array.from({length:7},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return x;});}const first=new Date(cursor.getFullYear(),cursor.getMonth(),1);const start=new Date(first);start.setDate(1-first.getDay());return Array.from({length:42},(_,i)=>{const x=new Date(start);x.setDate(start.getDate()+i);return x;});}
-    function renderCalendar(){const days=daysForView();$('calendar-title').textContent=view==='week'?`Week of ${days[0].toLocaleDateString(undefined,{month:'short',day:'numeric'})}`:cursor.toLocaleDateString(undefined,{month:'long',year:'numeric'});document.querySelector('.calendar').classList.toggle('week-mode',view==='week');const grouped={};climbs.forEach(c=>(grouped[c.climbed_on]??=[]).push(c));const visibleLimit=view==='week'?20:4;$('calendar-grid').innerHTML=days.map(d=>{const key=dateKey(d),items=grouped[key]||[];return `<div class="day ${d.getMonth()!==cursor.getMonth()&&view==='month'?'other-month':''} ${key===todayKey?'today':''}" data-day="${key}"><span class="day-number">${d.getDate()}</span>${items.slice(0,visibleLimit).map(c=>`<span class="climb-bar ${c.sent?'':'project'}">${esc(c.grade_system)} ${esc(c.grade)} · sent?: ${c.sent?'yes':'no'}</span>`).join('')}${items.length>visibleLimit?`<span class="more">and ${items.length-visibleLimit} more...</span>`:''}</div>`;}).join('');document.querySelectorAll('.day').forEach(el=>el.onclick=()=>openDay(el.dataset.day));}
-    function openDay(key){const items=climbs.filter(c=>c.climbed_on===key);$('day-title').textContent=new Date(`${key}T00:00:00`).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});$('day-climbs').innerHTML=items.length?items.map(c=>`<article class="climb-detail"><h3>${esc(c.name)} <span class="pill">${esc(c.grade_system)} ${esc(c.grade)}</span></h3><div class="muted">${esc(c.location||'Location not set')} · ${esc(c.discipline)} · ${c.sent?'Sent: yes':'Sent: no'} · ${c.attempts} attempt${c.attempts===1?'':'s'}</div>${c.notes?`<p>${esc(c.notes)}</p>`:''}</article>`).join(''):'<p class="muted">No climbs logged on this day.</p>';$('day-modal').hidden=false;}
+    function renderCalendar(){const days=daysForView();$('calendar-title').textContent=view==='week'?`Week of ${days[0].toLocaleDateString(undefined,{month:'short',day:'numeric'})}`:cursor.toLocaleDateString(undefined,{month:'long',year:'numeric'});document.querySelector('.calendar').classList.toggle('week-mode',view==='week');const grouped={};climbs.forEach(c=>(grouped[c.climbed_on]??=[]).push(c));const visibleLimit=view==='week'?20:4;$('calendar-grid').innerHTML=days.map(d=>{const key=dateKey(d),items=grouped[key]||[];return `<div class="day ${d.getMonth()!==cursor.getMonth()&&view==='month'?'other-month':''} ${key===todayKey?'today':''}" data-day="${key}"><span class="day-number">${d.getDate()}</span>${items.slice(0,visibleLimit).map(c=>`<span class="climb-bar ${c.sent?'':'project'}">${esc(c.grade)} · sent?: ${c.sent?'yes':'no'}</span>`).join('')}${items.length>visibleLimit?`<span class="more">and ${items.length-visibleLimit} more...</span>`:''}</div>`;}).join('');document.querySelectorAll('.day').forEach(el=>el.onclick=()=>openDay(el.dataset.day));}
+    function openDay(key){const items=climbs.filter(c=>c.climbed_on===key);$('day-title').textContent=new Date(`${key}T00:00:00`).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});$('day-climbs').innerHTML=items.length?items.map(c=>`<article class="climb-detail"><h3>${esc(c.name)} <span class="pill">${esc(c.grade)}</span></h3><div class="muted">${esc(c.location||'Location not set')} · ${esc(c.discipline)} · ${c.sent?'Sent: yes':'Sent: no'} · ${c.attempts} attempt${c.attempts===1?'':'s'}</div>${c.notes?`<p>${esc(c.notes)}</p>`:''}</article>`).join(''):'<p class="muted">No climbs logged on this day.</p>';$('day-modal').hidden=false;}
     function openAttempt(){const last=climbs[0];$('attempt-form').reset();$('climbed-on').value=dateKey(new Date());setGradeValue(last?.grade_system||'V',last?.grade||'');if(last){['name','location','discipline','attempts','notes'].forEach(id=>{if(last[id]!==undefined)$(id).value=last[id];});$('sent').checked=last.sent;}$('form-message').textContent='';$('attempt-modal').hidden=false;$('name').focus();}
     $('open-attempt').onclick=openAttempt;document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).hidden=true);document.querySelectorAll('.modal-backdrop').forEach(m=>m.onclick=e=>{if(e.target===m)m.hidden=true;});
     $('attempt-form').onsubmit=async e=>{e.preventDefault();$('form-message').textContent='';try{const format=gradeFormats[$('grade-system').value]||{prefix:''};const grade=`${format.prefix}${$('grade-number').value}`;await request('/climbs/',{method:'POST',body:JSON.stringify({climbed_on:$('climbed-on').value,name:$('name').value,location:$('location').value,discipline:$('discipline').value,grade_system:$('grade-system').value,grade,attempts:Number($('attempts').value),sent:$('sent').checked,notes:$('notes').value})});$('attempt-modal').hidden=true;await loadClimbs();}catch(err){$('form-message').textContent=err.message;}};
