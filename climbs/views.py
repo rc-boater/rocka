@@ -18,6 +18,25 @@ class ClimbListCreateView(UserClimbMixin, generics.ListCreateAPIView):
     serializer_class = ClimbSerializer
 
     def perform_create(self, serializer):
+        data = serializer.validated_data
+        matching = self.get_queryset().filter(
+            climbed_on=data["climbed_on"],
+            name=data["name"],
+            location=data.get("location", ""),
+            discipline=data["discipline"],
+            grade_system=data["grade_system"],
+            grade=data["grade"],
+            sent=data["sent"],
+            notes=data.get("notes", ""),
+        ).first()
+        if matching:
+            total_attempts = matching.attempts + data["attempts"]
+            if total_attempts > 999:
+                raise ValidationError({"attempts": "Combined attempts cannot exceed 999."})
+            matching.attempts = total_attempts
+            matching.save(update_fields=["attempts", "updated_at"])
+            serializer.instance = matching
+            return
         serializer.save(user=self.request.user)
 
 
