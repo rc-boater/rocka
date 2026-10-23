@@ -4,106 +4,144 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Climb Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { color-scheme: light; --ink: #17202a; --muted: #667085; --line: #e5e7eb; --accent: #d97706; --soft: #fff7ed; }
-    * { box-sizing: border-box; }
-    body { margin: 0; font: 16px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; color: var(--ink); background: #f8fafc; }
-    header { background: #17202a; color: white; padding: 1rem max(1rem, calc((100% - 1000px) / 2)); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-    header h1 { margin: 0; font-size: 1.25rem; }
-    main { width: min(100% - 2rem, 1000px); margin: 2rem auto; }
-    .card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px #17202a0b; }
-    .auth { max-width: 440px; margin: 4rem auto; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
-    .two-col { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 1rem; align-items: start; }
-    label { display: block; margin: .75rem 0 .25rem; font-weight: 600; font-size: .9rem; }
-    input, select, textarea, button { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: .65rem .7rem; font: inherit; }
-    textarea { min-height: 88px; resize: vertical; }
-    button { cursor: pointer; border: 0; background: var(--accent); color: white; font-weight: 700; margin-top: 1rem; }
-    button.secondary { background: transparent; color: white; border: 1px solid #ffffff66; width: auto; margin: 0; padding: .45rem .75rem; }
-    button.link { background: none; color: var(--accent); padding: 0; width: auto; margin: .75rem 0 0; }
-    .muted, small { color: var(--muted); }
-    .message { min-height: 1.5rem; margin-top: .75rem; color: #b42318; }
-    .success { color: #067647; }
-    .climb { border-top: 1px solid var(--line); padding: 1rem 0; }
-    .climb:first-child { border-top: 0; padding-top: 0; }
-    .climb h3 { margin: 0; font-size: 1.05rem; }
-    .badge { display: inline-block; background: var(--soft); color: #9a3412; border-radius: 999px; padding: .15rem .5rem; font-size: .8rem; }
-    .stat { font-size: 2rem; font-weight: 750; margin: .2rem 0; }
-    [hidden] { display: none !important; }
-    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+    :root { color-scheme: light; --ink:#1e2a35; --muted:#667784; --line:#cbd6dc; --blue:#496b80; --blue-dark:#28495d; --blue-soft:#e7eef2; --paper:#fbfaf7; --white:#fffefa; --danger:#9c3d45; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; min-height:100%; }
+    body { background:var(--paper); color:var(--ink); font:16px/1.45 "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif; }
+    button, input, select, textarea { color:inherit; font:inherit; }
+    button { cursor:pointer; }
+    header { background:var(--blue-dark); color:var(--white); padding:1rem max(1rem, calc((100% - 1100px) / 2)); display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    header h1 { font-size:1.25rem; letter-spacing:.02em; margin:0; }
+    main { width:min(100% - 2rem, 1100px); margin:1.25rem auto 3rem; }
+    .auth { max-width:430px; margin:12vh auto 0; }
+    .card { background:var(--white); border:1px solid var(--line); border-radius:3px; padding:1.1rem; box-shadow:0 3px 12px #1e2a3512; }
+    .muted, small { color:var(--muted); }
+    h2 { font-size:1.25rem; margin:.1rem 0 .75rem; }
+    h3 { margin:.1rem 0 .2rem; }
+    label { display:block; margin:.7rem 0 .25rem; font-weight:600; }
+    input, select, textarea { width:100%; border:1px solid var(--line); border-radius:2px; background:var(--white); padding:.62rem .7rem; }
+    textarea { min-height:90px; resize:vertical; }
+    button { border:1px solid var(--blue); border-radius:2px; background:var(--blue); color:var(--white); font-weight:700; padding:.65rem .85rem; }
+    button:hover { background:var(--blue-dark); }
+    button.secondary { background:transparent; color:var(--white); border-color:#d6e1e6; width:auto; margin:0; }
+    button.ghost { background:transparent; color:var(--blue-dark); }
+    button.link { border:0; background:none; color:var(--blue); padding:.2rem 0; margin-top:.7rem; }
+    .message { min-height:1.35rem; color:var(--danger); margin:.65rem 0 0; }
+    .stats { display:grid; grid-template-columns:repeat(3, 1fr); gap:.7rem; margin-bottom:1rem; }
+    .stat-value { font-size:1.65rem; font-weight:700; margin:.15rem 0 0; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:.7rem; flex-wrap:wrap; margin-bottom:.7rem; }
+    .toolbar h2 { margin:0; }
+    .view-toggle { display:flex; gap:.35rem; }
+    .view-toggle button { padding:.4rem .7rem; }
+    .view-toggle .active { background:var(--blue-dark); }
+    .primary-action { width:100%; margin-bottom:1rem; font-size:1.05rem; }
+    .calendar { overflow:hidden; }
+    .calendar-head, .calendar-grid { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); }
+    .weekday { background:var(--blue-soft); color:var(--blue-dark); font-weight:700; padding:.45rem .3rem; text-align:center; border-right:1px solid var(--line); }
+    .day { min-height:112px; padding:.35rem; border-top:1px solid var(--line); border-right:1px solid var(--line); background:var(--white); overflow:hidden; cursor:pointer; }
+    .day:nth-child(7n) { border-right:0; }
+    .day.other-month { background:#f3f5f4; color:#84929a; }
+    .day.today .day-number { background:var(--blue-dark); color:var(--white); }
+    .day-number { display:inline-flex; align-items:center; justify-content:center; width:1.65rem; height:1.65rem; border-radius:50%; font-weight:700; }
+    .climb-bar { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:.25rem; padding:.16rem .28rem; border-left:3px solid var(--blue); background:var(--blue-soft); color:var(--blue-dark); font-size:.78rem; }
+    .climb-bar.project { border-left-color:#8898a2; }
+    .more { display:block; margin-top:.2rem; color:var(--blue-dark); font-size:.78rem; font-weight:700; }
+    .modal-backdrop { position:fixed; inset:0; z-index:10; display:grid; place-items:center; padding:1rem; background:#1e2a358c; }
+    .modal { width:min(100%, 620px); max-height:calc(100vh - 2rem); overflow:auto; background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:1rem; box-shadow:0 12px 40px #1e2a3555; }
+    .modal.large { width:min(100%, 900px); }
+    .modal-head { display:flex; justify-content:space-between; gap:1rem; align-items:center; margin-bottom:.5rem; }
+    .close { background:none; color:var(--blue-dark); border:0; font-size:1.5rem; line-height:1; padding:.2rem; }
+    .climb-detail { padding:.8rem 0; border-top:1px solid var(--line); }
+    .climb-detail:first-child { border-top:0; }
+    .pill { display:inline-block; border:1px solid var(--line); background:var(--blue-soft); color:var(--blue-dark); border-radius:2px; padding:.1rem .35rem; font-size:.82rem; }
+    [hidden] { display:none !important; }
+    @media (max-width:700px) {
+      main { width:min(100% - 1rem, 1100px); margin-top:.75rem; }
+      .stats { gap:.4rem; }
+      .stat-value { font-size:1.35rem; }
+      .card { padding:.8rem; }
+      .day { min-height:82px; padding:.22rem; }
+      .weekday { font-size:.82rem; padding:.35rem .1rem; }
+      .climb-bar { font-size:.7rem; padding:.12rem .18rem; border-left-width:2px; }
+      .day-number { width:1.45rem; height:1.45rem; font-size:.9rem; }
+    }
+    @media (max-width:420px) {
+      header { padding:.8rem .65rem; }
+      header h1 { font-size:1.1rem; }
+      .stats small { font-size:.78rem; }
+      .stat-value { font-size:1.15rem; }
+      .day { min-height:72px; }
+      .climb-bar { white-space:normal; line-height:1.15; max-height:2.3em; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🧗 Climb Tracker</h1>
-    <button id="logout" class="secondary" hidden>Log out</button>
-  </header>
-
+  <header><h1>Climb Tracker</h1><button id="logout" class="secondary" hidden>Log out</button></header>
   <main>
     <section id="auth-view" class="card auth">
-      <h2 id="auth-title">Sign in</h2>
-      <p class="muted">Track the climbs you want to remember.</p>
+      <h2 id="auth-title">Sign in</h2><p class="muted">Keep a simple record of every attempt.</p>
       <form id="auth-form">
         <label for="username">Username</label><input id="username" autocomplete="username" required>
-        <div id="email-wrap" hidden><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
-        <label for="password">Password</label><input id="password" type="password" minlength="12" required autocomplete="current-password">
-        <button id="auth-submit">Sign in</button>
+        <label for="password">Password</label><input id="password" type="password" minlength="6" required autocomplete="current-password">
+        <button id="auth-submit" type="submit" style="width:100%;margin-top:1rem">Sign in</button>
       </form>
-      <button id="toggle-auth" class="link" type="button">Need an account? Register</button>
-      <p id="auth-message" class="message" role="alert"></p>
+      <button id="toggle-auth" class="link" type="button">Need an account? Register</button><p id="auth-message" class="message" role="alert"></p>
     </section>
 
     <section id="app-view" hidden>
-      <div class="grid" style="margin-bottom: 1rem">
-        <div class="card"><small>Total climbs</small><div id="total-count" class="stat">0</div></div>
-        <div class="card"><small>Successful climbs</small><div id="sent-count" class="stat">0</div></div>
-        <div class="card"><small>Feature status</small><div id="feature-status" class="stat" style="font-size:1.2rem">Loading…</div></div>
+      <div class="stats">
+        <div class="card"><small>Successful climbs</small><div id="sent-count" class="stat-value">0</div></div>
+        <div class="card"><small>Highest grade</small><div id="highest-grade" class="stat-value">—</div></div>
+        <div class="card"><small>Average · past month</small><div id="average-grade" class="stat-value">—</div></div>
       </div>
-      <div class="two-col">
-        <form id="climb-form" class="card">
-          <h2>Log a climb</h2>
-          <label for="climbed-on">Date</label><input id="climbed-on" type="date" required>
-          <label for="name">Name</label><input id="name" required maxlength="200" placeholder="Midnight Lightning">
-          <label for="location">Location</label><input id="location" maxlength="250" placeholder="Camp 4">
-          <label for="discipline">Discipline</label>
-          <select id="discipline"><option value="boulder">Bouldering</option><option value="sport">Sport</option><option value="trad">Trad</option><option value="top_rope">Top rope</option><option value="ice">Ice</option><option value="alpine">Alpine</option></select>
-          <label for="grade-system">Grade system</label>
-          <select id="grade-system"><option>V</option><option>YDS</option><option>French</option><option>UIAA</option><option>Font</option></select>
-          <label for="grade">Grade</label><input id="grade" required placeholder="V4">
-          <label for="attempts">Attempts</label><input id="attempts" type="number" min="1" value="1" required>
-          <label><input id="sent" type="checkbox" checked style="width:auto"> Sent</label>
-          <label for="notes">Notes</label><textarea id="notes" maxlength="4000"></textarea>
-          <button>Save climb</button><p id="form-message" class="message" role="alert"></p>
-        </form>
-        <div class="card"><h2>Recent climbs</h2><div id="climb-list"><p class="muted">Loading…</p></div></div>
-      </div>
+      <button id="open-attempt" class="primary-action">Log an attempt</button>
+      <section class="card calendar">
+        <div class="toolbar"><h2 id="calendar-title"></h2><div><button id="previous-period" class="ghost" aria-label="Previous period">←</button> <button id="today-period" class="ghost">Today</button> <button id="next-period" class="ghost" aria-label="Next period">→</button></div><div class="view-toggle"><button id="month-view" class="active" type="button">Month</button><button id="week-view" type="button">Week</button></div></div>
+        <div class="calendar-head"><div class="weekday">Sun</div><div class="weekday">Mon</div><div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div></div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+      </section>
     </section>
   </main>
 
+  <div id="attempt-modal" class="modal-backdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="attempt-title"><div class="modal-head"><h2 id="attempt-title">Log an attempt</h2><button class="close" data-close="attempt-modal" aria-label="Close">×</button></div><form id="attempt-form">
+    <label for="climbed-on">Date</label><input id="climbed-on" type="date" required>
+    <label for="name">Name</label><input id="name" required maxlength="200" placeholder="Route or problem name">
+    <label for="location">Location</label><input id="location" maxlength="250" placeholder="Gym or crag">
+    <label for="discipline">Discipline</label><select id="discipline"><option value="boulder">Bouldering</option><option value="sport">Sport</option><option value="trad">Trad</option><option value="top_rope">Top rope</option><option value="ice">Ice</option><option value="alpine">Alpine</option></select>
+    <label for="grade-system">Grade system</label><select id="grade-system"><option>V</option><option>YDS</option><option>French</option><option>UIAA</option><option>Font</option></select>
+    <label for="grade">Grade</label><input id="grade" required placeholder="V4">
+    <label for="attempts">Attempts</label><input id="attempts" type="number" min="1" value="1" required>
+    <label><input id="sent" type="checkbox" checked style="width:auto"> Sent</label>
+    <label for="notes">Notes</label><textarea id="notes" maxlength="4000"></textarea>
+    <button type="submit" style="width:100%;margin-top:1rem">Save attempt</button><p id="form-message" class="message" role="alert"></p>
+  </form></div></div>
+  <div id="day-modal" class="modal-backdrop" hidden><div class="modal large" role="dialog" aria-modal="true" aria-labelledby="day-title"><div class="modal-head"><h2 id="day-title">Climbs</h2><button class="close" data-close="day-modal" aria-label="Close">×</button></div><div id="day-climbs"></div></div></div>
+
   <script>
-    const api = '/api';
-    let access = localStorage.getItem('climb_access');
-    let registering = false;
-    const $ = id => document.getElementById(id);
-    const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    async function request(path, options = {}) {
-      const headers = { ...(options.body instanceof FormData ? {} : {'Content-Type': 'application/json'}), ...(options.headers || {}) };
-      if (access) headers.Authorization = `Bearer ${access}`;
-      const response = await fetch(api + path, { ...options, headers });
-      if (response.status === 401 && access) { localStorage.removeItem('climb_access'); access = null; showAuth(); }
-      const body = response.status === 204 ? null : await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(body.detail || Object.values(body).flat().join(' ') || 'Request failed');
-      return body;
-    }
-    function showAuth() { $('auth-view').hidden = false; $('app-view').hidden = true; $('logout').hidden = true; }
-    function showApp() { $('auth-view').hidden = true; $('app-view').hidden = false; $('logout').hidden = false; loadDashboard(); }
-    $('toggle-auth').onclick = () => { registering = !registering; $('auth-title').textContent = registering ? 'Create account' : 'Sign in'; $('auth-submit').textContent = registering ? 'Register' : 'Sign in'; $('email-wrap').hidden = !registering; $('email').required = registering; $('toggle-auth').textContent = registering ? 'Already have an account? Sign in' : 'Need an account? Register'; $('auth-message').textContent = ''; };
-    $('auth-form').onsubmit = async event => { event.preventDefault(); $('auth-message').textContent = ''; try { if (registering) { await request('/auth/register/', {method:'POST', body: JSON.stringify({username:$('username').value, email:$('email').value, password:$('password').value})}); registering = false; $('toggle-auth').click(); $('auth-message').textContent = 'Account created. You can now sign in.'; $('auth-message').className = 'message success'; } else { const data = await request('/auth/login/', {method:'POST', body: JSON.stringify({username:$('username').value, password:$('password').value})}); access = data.access; localStorage.setItem('climb_access', access); showApp(); } } catch (error) { $('auth-message').textContent = error.message; } };
-    $('logout').onclick = () => { localStorage.removeItem('climb_access'); access = null; showAuth(); };
-    $('climb-form').onsubmit = async event => { event.preventDefault(); $('form-message').textContent = ''; try { await request('/climbs/', {method:'POST', body: JSON.stringify({climbed_on:$('climbed-on').value, name:$('name').value, location:$('location').value, discipline:$('discipline').value, grade_system:$('grade-system').value, grade:$('grade').value, attempts:Number($('attempts').value), sent:$('sent').checked, notes:$('notes').value})}); event.target.reset(); $('climbed-on').value = new Date().toISOString().slice(0,10); $('sent').checked = true; $('form-message').textContent = 'Climb saved.'; $('form-message').className = 'message success'; loadDashboard(); } catch (error) { $('form-message').textContent = error.message; } };
-    async function loadDashboard() { try { const [climbs, features] = await Promise.all([request('/climbs/'), request('/climbs/features/')]); $('total-count').textContent = climbs.length; $('sent-count').textContent = climbs.filter(c => c.sent).length; $('feature-status').textContent = features.photo_uploads_enabled ? 'Photos enabled' : 'Photos disabled'; $('climb-list').innerHTML = climbs.length ? climbs.map(c => `<article class="climb"><h3>${escapeHtml(c.name)} <span class="badge">${escapeHtml(c.grade_system)} ${escapeHtml(c.grade)}</span></h3><div class="muted">${escapeHtml(c.climbed_on)} · ${escapeHtml(c.location || 'Location not set')} · ${escapeHtml(c.discipline)}</div><div>${c.sent ? '✓ Sent' : 'Project'} · ${c.attempts} attempt${c.attempts === 1 ? '' : 's'}</div>${c.notes ? `<p>${escapeHtml(c.notes)}</p>` : ''}</article>`).join('') : '<p class="muted">No climbs logged yet.</p>'; } catch (error) { $('climb-list').innerHTML = `<p class="message">${escapeHtml(error.message)}</p>`; } }
-    $('climbed-on').value = new Date().toISOString().slice(0,10);
-    if (access) showApp(); else showAuth();
+    const api='/api'; let access=localStorage.getItem('climb_access'); let registering=false; let climbs=[]; let view='month'; let cursor=new Date();
+    const $=id=>document.getElementById(id); const pad=n=>String(n).padStart(2,'0'); const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; const todayKey=dateKey(new Date());
+    const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    async function request(path,options={}){const headers={...(options.body instanceof FormData?{}:{'Content-Type':'application/json'}),...(options.headers||{})};if(access)headers.Authorization=`Bearer ${access}`;const r=await fetch(api+path,{...options,headers});const body=r.status===204?null:await r.json().catch(()=>({}));if(!r.ok)throw Error(body.detail||Object.values(body).flat().join(' ')||'Request failed');return body;}
+    function showAuth(){ $('auth-view').hidden=false;$('app-view').hidden=true;$('logout').hidden=true; }
+    function showApp(){ $('auth-view').hidden=true;$('app-view').hidden=false;$('logout').hidden=false;loadClimbs(); }
+    $('toggle-auth').onclick=()=>{registering=!registering;$('auth-title').textContent=registering?'Create account':'Sign in';$('auth-submit').textContent=registering?'Register':'Sign in';$('toggle-auth').textContent=registering?'Already have an account? Sign in':'Need an account? Register';$('auth-message').textContent='';$('password').autocomplete=registering?'new-password':'current-password';};
+    $('auth-form').onsubmit=async e=>{e.preventDefault();$('auth-message').textContent='';try{const username=$('username').value,password=$('password').value;if(registering){await request('/auth/register/',{method:'POST',body:JSON.stringify({username,password})});const data=await request('/auth/login/',{method:'POST',body:JSON.stringify({username,password})});access=data.access;localStorage.setItem('climb_access',access);showApp();}else{const data=await request('/auth/login/',{method:'POST',body:JSON.stringify({username,password})});access=data.access;localStorage.setItem('climb_access',access);showApp();}}catch(err){$('auth-message').textContent=err.message;}};
+    $('logout').onclick=()=>{localStorage.removeItem('climb_access');access=null;showAuth();};
+    function gradeScore(c){const raw=String(c.grade).toUpperCase();const n=parseFloat(raw.replace(/[^0-9.]/g,''));if(c.grade_system==='V')return 100+(Number.isFinite(n)?n:0);if(c.grade_system==='Font')return 80+(Number.isFinite(n)?n:0);if(c.grade_system==='French')return 60+(Number.isFinite(n)?n:0);if(c.grade_system==='YDS')return 40+(Number.isFinite(n)?n:0);if(c.grade_system==='UIAA')return 20+(Number.isFinite(n)?n:0);return 0;}
+    function updateStats(){const sent=climbs.filter(c=>c.sent);$('sent-count').textContent=sent.length;const highest=sent.slice().sort((a,b)=>gradeScore(b)-gradeScore(a))[0];$('highest-grade').textContent=highest?`${highest.grade_system} ${highest.grade}`:'—';const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);const recent=sent.filter(c=>new Date(`${c.climbed_on}T00:00:00`)>=cutoff);const v=recent.filter(c=>c.grade_system==='V').map(c=>parseFloat(c.grade.replace(/[^0-9.]/g,''))).filter(Number.isFinite);$('average-grade').textContent=v.length?`V${(v.reduce((a,n)=>a+n,0)/v.length).toFixed(1)}`:(recent.length?`${recent.length} sent`:'—');}
+    function daysForView(){if(view==='week'){const d=new Date(cursor);d.setDate(d.getDate()-d.getDay());return Array.from({length:7},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return x;});}const first=new Date(cursor.getFullYear(),cursor.getMonth(),1);const start=new Date(first);start.setDate(1-first.getDay());return Array.from({length:42},(_,i)=>{const x=new Date(start);x.setDate(start.getDate()+i);return x;});}
+    function renderCalendar(){const days=daysForView();$('calendar-title').textContent=view==='week'?`Week of ${days[0].toLocaleDateString(undefined,{month:'short',day:'numeric'})}`:cursor.toLocaleDateString(undefined,{month:'long',year:'numeric'});const grouped={};climbs.forEach(c=>(grouped[c.climbed_on]??=[]).push(c));$('calendar-grid').innerHTML=days.map(d=>{const key=dateKey(d),items=grouped[key]||[];return `<div class="day ${d.getMonth()!==cursor.getMonth()&&view==='month'?'other-month':''} ${key===todayKey?'today':''}" data-day="${key}"><span class="day-number">${d.getDate()}</span>${items.slice(0,4).map(c=>`<span class="climb-bar ${c.sent?'':'project'}">${esc(c.grade_system)} ${esc(c.grade)} · ${c.sent?'Yes':'No'}</span>`).join('')}${items.length>4?`<span class="more">and ${items.length-4} more...</span>`:''}</div>`;}).join('');document.querySelectorAll('.day').forEach(el=>el.onclick=()=>openDay(el.dataset.day));}
+    function openDay(key){const items=climbs.filter(c=>c.climbed_on===key);$('day-title').textContent=new Date(`${key}T00:00:00`).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});$('day-climbs').innerHTML=items.length?items.map(c=>`<article class="climb-detail"><h3>${esc(c.name)} <span class="pill">${esc(c.grade_system)} ${esc(c.grade)}</span></h3><div class="muted">${esc(c.location||'Location not set')} · ${esc(c.discipline)} · ${c.sent?'Sent: yes':'Sent: no'} · ${c.attempts} attempt${c.attempts===1?'':'s'}</div>${c.notes?`<p>${esc(c.notes)}</p>`:''}</article>`).join(''):'<p class="muted">No climbs logged on this day.</p>';$('day-modal').hidden=false;}
+    function openAttempt(){const last=climbs[0];$('attempt-form').reset();$('climbed-on').value=dateKey(new Date());if(last){['name','location','discipline','grade-system','grade','attempts','notes'].forEach(id=>{if(last[id]!==undefined)$(id).value=last[id];});$('sent').checked=last.sent;}$('form-message').textContent='';$('attempt-modal').hidden=false;$('name').focus();}
+    $('open-attempt').onclick=openAttempt;document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).hidden=true);document.querySelectorAll('.modal-backdrop').forEach(m=>m.onclick=e=>{if(e.target===m)m.hidden=true;});
+    $('attempt-form').onsubmit=async e=>{e.preventDefault();$('form-message').textContent='';try{await request('/climbs/',{method:'POST',body:JSON.stringify({climbed_on:$('climbed-on').value,name:$('name').value,location:$('location').value,discipline:$('discipline').value,grade_system:$('grade-system').value,grade:$('grade').value,attempts:Number($('attempts').value),sent:$('sent').checked,notes:$('notes').value})});$('attempt-modal').hidden=true;await loadClimbs();}catch(err){$('form-message').textContent=err.message;}};
+    async function loadClimbs(){try{climbs=await request('/climbs/');updateStats();renderCalendar();}catch(err){if(access){localStorage.removeItem('climb_access');access=null;showAuth();}}}
+    $('month-view').onclick=()=>{view='month';$('month-view').classList.add('active');$('week-view').classList.remove('active');renderCalendar();};$('week-view').onclick=()=>{view='week';$('week-view').classList.add('active');$('month-view').classList.remove('active');renderCalendar();};$('previous-period').onclick=()=>{if(view==='month')cursor.setMonth(cursor.getMonth()-1);else cursor.setDate(cursor.getDate()-7);renderCalendar();};$('next-period').onclick=()=>{if(view==='month')cursor.setMonth(cursor.getMonth()+1);else cursor.setDate(cursor.getDate()+7);renderCalendar();};$('today-period').onclick=()=>{cursor=new Date();renderCalendar();};
+    if(access)showApp();else showAuth();
   </script>
 </body>
 </html>
