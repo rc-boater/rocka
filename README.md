@@ -29,7 +29,7 @@ python manage.py runserver
 
 The API will run at `http://127.0.0.1:8000`. Its admin console is at `/admin/`.
 
-The barebones frontend is served from the root URL at `http://127.0.0.1:8000/`. It supports registration, sign-in, logging climbs, and viewing recent climbs. It uses the same-origin API, so no separate frontend server or CORS configuration is needed for local development.
+The frontend is served from the root URL at `http://127.0.0.1:8000/`. It supports registration, sign-in, logging attempts, a responsive month/week calendar, and progress stats. It uses the same-origin API, so no separate frontend server or CORS configuration is needed for local development. Account email collection is controlled by `REQUIRE_ACCOUNT_EMAIL` and is off by default. Passwords must be at least 6 characters.
 
 For a container deployment, copy `.env.example` to `.env`, set production values, then run:
 
