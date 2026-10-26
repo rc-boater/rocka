@@ -1,6 +1,6 @@
 # Rocka backend
 
-A Django REST API for private climbing logs. It contains no frontend.
+A Django REST API and frontend for private climbing logs. This repository contains both the Rocka backend API and the Rocka frontend served by Django.
 
 ## Included
 
