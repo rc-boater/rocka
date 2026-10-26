@@ -1,4 +1,4 @@
-# Climb Tracker backend
+# Rocka backend
 
 A Django REST API for private climbing logs. It contains no frontend.
 
