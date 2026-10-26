@@ -57,7 +57,7 @@ All API responses are JSON. For protected endpoints, send `Authorization: Bearer
 
 ## Managing photo uploads
 
-Create a Django superuser during setup, then sign in at `/admin/`. Open **Feature settings** and clear **Photo uploads enabled** to disable future uploads site-wide. The API returns `403 Forbidden` for uploads while disabled. Existing photos remain available to their owners.
+Create a Django superuser during setup, then sign in at `/admin/`. Open Feature settings and clear Photo uploads enabled to disable future uploads site-wide. The API returns `403 Forbidden` for uploads while disabled. Existing photos remain available to their owners.
 
 Example climb body:
 
