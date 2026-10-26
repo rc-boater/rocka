@@ -55,6 +55,9 @@ REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.a
 CORS_ALLOWED_ORIGINS = [item.strip() for item in os.getenv("DJANGO_CORS_ALLOWED_ORIGINS", "").split(",") if item.strip()]
 REQUIRE_ACCOUNT_EMAIL = os.getenv("REQUIRE_ACCOUNT_EMAIL", "False").lower() == "true"
 SECURE_SSL_REDIRECT = not DEBUG
+# Render terminates HTTPS before forwarding requests to Django over HTTP.
+# Trust its forwarded protocol header so HTTPS requests are not redirected forever.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
